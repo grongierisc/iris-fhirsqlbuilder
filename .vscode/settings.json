@@ -13,8 +13,7 @@
         "service": "iris",
         "internalPort": 52773
       },"links": {
-        "FHIR UI Portal": "http://localhost:${port}/fhir/portal/patientlist.html",
-        "FHIR UI Demo": "http://localhost:${port}/csp/user/fhirUI/FHIRAppDemo.html",
+        "FHIR SQL Demo": "http://localhost:${port}/csp/fhirsql/index.csp",
         "FHIR server test": "http://localhost:${port}/fhir/r4/metadata"
       }
     },
