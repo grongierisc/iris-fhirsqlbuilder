@@ -5,7 +5,10 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    command: --check-caps false
+    command: 
+      - --check-caps false
+      - -a
+      - iris session iris -U HSSYS '##class(HS.HC.FHIRSQL.Utils.Setup).Install()'
     environment:
       - ISC_CPF_MERGE_FILE=/irisdev/app/merge.cpf
     ports: 
