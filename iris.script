@@ -22,7 +22,7 @@
     Set appKey = "/fhir/r4"
     Set strategyClass = "FHIRSQL.InteractionsStrategy"
     Set metadataConfigKey = "HL7v40"
-    set importdir="/opt/irisapp/src"
+    set importdir="/irisdev/app/src"
 
     //Install a Foundation namespace and change to it
     Do ##class(HS.HC.Util.Installer).InstallFoundation(namespace)
@@ -41,12 +41,13 @@
     set config.DebugMode = 4
     do strategy.SaveServiceConfigData(config)
 
-    zw ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles("/opt/irisapp/fhirdata/", namespace, appKey)
+    zw ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles("/irisdev/app/fhirdata/", namespace, appKey)
 
 
-    do $System.OBJ.LoadDir("/opt/irisapp/src","ck",,1)
+    do $System.OBJ.LoadDir("/irisdev/app/src","ck",,1)
 
-    #; LOAD DATA FROM FILE '/irisdev/app/misc/Location.csv' INTO Demo_External.Location
+    do $SYSTEM.SQL.Execute("LOAD DATA FROM FILE '/irisdev/app/misc/Location.csv' INTO Demo_External.Location")
+
     zw ##class(Demo.AtScale.DateFact).Populate()
 
     halt
