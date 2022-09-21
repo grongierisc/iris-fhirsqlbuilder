@@ -1,4 +1,4 @@
-ARG IMAGE=arti.iscinternal.com/intersystems/irishealth:2022.3.0FHIRSQL.13.0
+ARG IMAGE=arti.iscinternal.com/intersystems/irishealth:2022.3.0FHIRSQL.30.0
 FROM $IMAGE
 
 USER root
@@ -24,4 +24,5 @@ COPY fhirUI /usr/irissys/csp/user/fhirUI
 
 # run iris and initial 
 RUN iris start IRIS \
-	&& iris session IRIS < /tmp/iris.script
+	&& iris session IRIS < /tmp/iris.script \
+	&& iris stop IRIS quietly

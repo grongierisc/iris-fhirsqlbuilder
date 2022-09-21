@@ -1,16 +1,34 @@
     zn "%SYS"
     Do ##class(Security.Users).UnExpireUserPasswords("*")
 
+    set db="/usr/irissys/mgr/irislib"
+    set tDB = ##class(SYS.Database).%OpenId(db)
+    set tDB.ReadOnly = 0
+    zw tDB.%Save()
+
+    set db="/usr/irissys/mgr/hslib"
+    set tDB = ##class(SYS.Database).%OpenId(db)
+    set tDB.ReadOnly = 0
+    zw tDB.%Save()
+
     zn "HSLIB"
+
+    // Enable FHIR SQL Builder
+    Do ##class(HS.HC.FHIRSQL.Utils.Setup).CreateWebApps("HSSYS",1)
+	Do ##class(HS.HC.FHIRSQL.Utils.Setup).DefineDocDBs("HSSYS")
+    
+
     set namespace="FHIRSERVER"
     Set appKey = "/fhir/r4"
-    Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
+    Set strategyClass = "FHIRSQL.InteractionsStrategy"
     Set metadataConfigKey = "HL7v40"
     set importdir="/opt/irisapp/src"
 
     //Install a Foundation namespace and change to it
     Do ##class(HS.HC.Util.Installer).InstallFoundation(namespace)
     zn namespace
+
+    Do $classMethod("HS.HC.FHIRSQL.Server.FHIRRepository","SetupInteractions")
 
     // Install elements that are required for a FHIR-enabled namespace
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
@@ -25,9 +43,10 @@
 
     zw ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles("/opt/irisapp/fhirdata/", namespace, appKey)
 
-    do $System.OBJ.LoadDir("/opt/irisapp/src","ck",,1)
-    zpm "install fhir-portal"
 
-    zn "HSSYS"
-    do ##class(HS.HC.FHIRSQL.Utils.Setup).Install()
+    do $System.OBJ.LoadDir("/opt/irisapp/src","ck",,1)
+
+    #; LOAD DATA FROM FILE '/irisdev/app/misc/Location.csv' INTO Demo_External.Location
+    zw ##class(Demo.AtScale.DateFact).Populate()
+
     halt
