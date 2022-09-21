@@ -1337,6 +1337,7 @@
       <column datatype='string' name='[County]' role='dimension' semantic-role='[County].[Name]' type='nominal' />
       <column caption='Day Name' datatype='string' name='[DayName]' role='dimension' type='nominal' />
       <column caption='Full Date' datatype='date' name='[FullDate]' role='dimension' type='ordinal' />
+      <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
       <column datatype='integer' name='[ID (AllergyIntolerance)]' role='dimension' type='ordinal' />
       <column datatype='integer' name='[ID (DateFact)]' role='dimension' type='ordinal' />
       <column datatype='integer' name='[ID (Encounter)]' role='dimension' type='ordinal' />
@@ -1374,6 +1375,18 @@
       <_.fcp.ObjectModelTableType.true...column caption='Organization' datatype='table' name='[__tableau_internal_object_id__].[Organization_B752D0D4A47C49D68F967E31FCC92B52]' role='measure' type='quantitative' />
       <_.fcp.ObjectModelTableType.true...column caption='Patient' datatype='table' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
       <column-instance column='[AddressCity (Patient)]' derivation='None' name='[none:AddressCity (Patient):nk]' pivot='key' type='nominal' />
+      <group caption='Action (AgeGroup,Gender)' hidden='true' name='[Action (AgeGroup,Gender)]' name-style='unqualified' user:auto-column='sheet_link'>
+        <groupfilter function='crossjoin'>
+          <groupfilter function='level-members' level='[Calculation_6624865431849144326]' />
+          <groupfilter function='level-members' level='[Gender]' />
+        </groupfilter>
+      </group>
+      <group caption='Action (Clinical Status Coding Code,Code Coding Display)' hidden='true' name='[Action (Clinical Status Coding Code,Code Coding Display)]' name-style='unqualified' user:auto-column='sheet_link'>
+        <groupfilter function='crossjoin'>
+          <groupfilter function='level-members' level='[ClinicalStatusCodingCode]' />
+          <groupfilter function='level-members' level='[CodeCodingDisplay]' />
+        </groupfilter>
+      </group>
       <layout _.fcp.SchemaViewerObjectModel.false...dim-percentage='0.5' _.fcp.SchemaViewerObjectModel.false...measure-percentage='0.4' dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' />
       <style>
         <style-rule element='mark'>
@@ -2571,6 +2584,32 @@
   <mapsources>
     <mapsource name='Tableau' />
   </mapsources>
+  <shared-views>
+    <shared-view name='federated.0bf3z6z0xsddlr1fndu440k38s7a'>
+      <datasources>
+        <datasource caption='Patient+ (AA)' name='federated.0bf3z6z0xsddlr1fndu440k38s7a' />
+      </datasources>
+      <datasource-dependencies datasource='federated.0bf3z6z0xsddlr1fndu440k38s7a'>
+        <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
+          <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
+        </column>
+        <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
+      </datasource-dependencies>
+      <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]'>
+        <groupfilter from='&quot;05-09&quot;' function='range' level='[none:Calculation_6624865431849144326:nk]' to='&quot;70-79&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+      </filter>
+    </shared-view>
+  </shared-views>
+  <actions>
+    <action caption='Filter1' name='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]'>
+      <activation auto-clear='true' type='on-select' />
+      <source dashboard='Dashboard 1' type='sheet' />
+      <command command='tsc:tsl-filter'>
+        <param name='special-fields' value='all' />
+        <param name='target' value='Dashboard 1' />
+      </command>
+    </action>
+  </actions>
   <worksheets>
     <worksheet name='AVGBodyGender'>
       <table>
@@ -2579,13 +2618,35 @@
             <datasource caption='Patient+ (AA)' name='federated.0bf3z6z0xsddlr1fndu440k38s7a' />
           </datasources>
           <datasource-dependencies datasource='federated.0bf3z6z0xsddlr1fndu440k38s7a'>
+            <column caption='Birth Date' datatype='string' name='[BirthDate]' role='dimension' type='nominal' />
+            <column caption='Age' datatype='integer' name='[Calculation_6624865431848120323]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='// Account for the fact that the birthday may not have come yet this year.&#10;    IF DATEADD(&apos;year&apos;, DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY()), DATE([BirthDate]))&gt; TODAY() THEN&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())-1&#10;    ELSE&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())&#10;    END' />
+            </column>
+            <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
+            </column>
+            <column caption='Clinical Status Coding Code' datatype='string' name='[ClinicalStatusCodingCode]' role='dimension' type='nominal' />
             <column datatype='string' name='[CodeCodingDisplay (Observation)]' role='dimension' type='nominal' />
+            <column caption='Code Coding Display' datatype='string' name='[CodeCodingDisplay]' role='dimension' type='nominal' />
             <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
             <column caption='Value Quantity Value' datatype='integer' name='[ValueQuantityValue]' role='measure' type='quantitative' />
             <column-instance column='[ValueQuantityValue]' derivation='Avg' name='[avg:ValueQuantityValue:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
             <column-instance column='[CodeCodingDisplay (Observation)]' derivation='None' name='[none:CodeCodingDisplay (Observation):nk]' pivot='key' type='nominal' />
             <column-instance column='[Gender]' derivation='None' name='[none:Gender:nk]' pivot='key' type='nominal' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Calculation_6624865431849144326]' />
+              <groupfilter function='level-members' level='[Gender]' />
+            </groupfilter>
+          </filter>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[ClinicalStatusCodingCode]' />
+              <groupfilter function='level-members' level='[CodeCodingDisplay]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:CodeCodingDisplay (Observation):nk]'>
             <groupfilter function='union' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
               <groupfilter function='member' level='[none:CodeCodingDisplay (Observation):nk]' member='&quot;BODY HEIGHT&quot;' />
@@ -2594,6 +2655,9 @@
           </filter>
           <slices>
             <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:CodeCodingDisplay (Observation):nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -2618,14 +2682,33 @@
             <datasource caption='Patient+ (AA)' name='federated.0bf3z6z0xsddlr1fndu440k38s7a' />
           </datasources>
           <datasource-dependencies datasource='federated.0bf3z6z0xsddlr1fndu440k38s7a'>
+            <column caption='Birth Date' datatype='string' name='[BirthDate]' role='dimension' type='nominal' />
+            <column caption='Age' datatype='integer' name='[Calculation_6624865431848120323]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='// Account for the fact that the birthday may not have come yet this year.&#10;    IF DATEADD(&apos;year&apos;, DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY()), DATE([BirthDate]))&gt; TODAY() THEN&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())-1&#10;    ELSE&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())&#10;    END' />
+            </column>
+            <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
+            </column>
             <column caption='Clinical Status Coding Code' datatype='string' name='[ClinicalStatusCodingCode]' role='dimension' type='nominal' />
-            <_.fcp.ObjectModelTableType.false...column caption='AllergyIntolerance' datatype='integer' name='[__tableau_internal_object_id__].[AllergyIntolerance_16ED0AB56F4849D6ABA490F01D528F45]' role='measure' type='quantitative' />
             <column caption='Code Coding Display' datatype='string' name='[CodeCodingDisplay]' role='dimension' type='nominal' />
+            <_.fcp.ObjectModelTableType.false...column caption='AllergyIntolerance' datatype='integer' name='[__tableau_internal_object_id__].[AllergyIntolerance_16ED0AB56F4849D6ABA490F01D528F45]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
             <_.fcp.ObjectModelTableType.true...column caption='AllergyIntolerance' datatype='table' name='[__tableau_internal_object_id__].[AllergyIntolerance_16ED0AB56F4849D6ABA490F01D528F45]' role='measure' type='quantitative' />
             <column-instance column='[__tableau_internal_object_id__].[AllergyIntolerance_16ED0AB56F4849D6ABA490F01D528F45]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:AllergyIntolerance_16ED0AB56F4849D6ABA490F01D528F45:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
             <column-instance column='[ClinicalStatusCodingCode]' derivation='None' name='[none:ClinicalStatusCodingCode:nk]' pivot='key' type='nominal' />
             <column-instance column='[CodeCodingDisplay]' derivation='None' name='[none:CodeCodingDisplay:nk]' pivot='key' type='nominal' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Calculation_6624865431849144326]' />
+              <groupfilter function='level-members' level='[Gender]' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]</column>
+          </slices>
           <aggregation value='true' />
         </view>
         <style />
@@ -2649,12 +2732,40 @@
             <datasource caption='Patient+ (AA)' name='federated.0bf3z6z0xsddlr1fndu440k38s7a' />
           </datasources>
           <datasource-dependencies datasource='federated.0bf3z6z0xsddlr1fndu440k38s7a'>
-            <_.fcp.ObjectModelTableType.false...column caption='Patient' datatype='integer' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
+            <column caption='Birth Date' datatype='string' name='[BirthDate]' role='dimension' type='nominal' />
+            <column caption='Age' datatype='integer' name='[Calculation_6624865431848120323]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='// Account for the fact that the birthday may not have come yet this year.&#10;    IF DATEADD(&apos;year&apos;, DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY()), DATE([BirthDate]))&gt; TODAY() THEN&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())-1&#10;    ELSE&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())&#10;    END' />
+            </column>
+            <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
+            </column>
             <column datatype='string' name='[City (Location1)]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
+            <column caption='Clinical Status Coding Code' datatype='string' name='[ClinicalStatusCodingCode]' role='dimension' type='nominal' />
+            <column caption='Code Coding Display' datatype='string' name='[CodeCodingDisplay]' role='dimension' type='nominal' />
+            <_.fcp.ObjectModelTableType.false...column caption='Patient' datatype='integer' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
             <_.fcp.ObjectModelTableType.true...column caption='Patient' datatype='table' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
             <column-instance column='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:Patient_10C4452388234D0891398F0F90C87BA0:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
             <column-instance column='[City (Location1)]' derivation='None' name='[none:City (Location1):nk]' pivot='key' type='nominal' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Calculation_6624865431849144326]' />
+              <groupfilter function='level-members' level='[Gender]' />
+            </groupfilter>
+          </filter>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[ClinicalStatusCodingCode]' />
+              <groupfilter function='level-members' level='[CodeCodingDisplay]' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]</column>
+          </slices>
           <aggregation value='true' />
         </view>
         <style>
@@ -2703,14 +2814,34 @@
             <column caption='Age' datatype='integer' name='[Calculation_6624865431848120323]' role='measure' type='quantitative'>
               <calculation class='tableau' formula='// Account for the fact that the birthday may not have come yet this year.&#10;    IF DATEADD(&apos;year&apos;, DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY()), DATE([BirthDate]))&gt; TODAY() THEN&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())-1&#10;    ELSE&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())&#10;    END' />
             </column>
-            <_.fcp.ObjectModelTableType.false...column caption='Encounter' datatype='integer' name='[__tableau_internal_object_id__].[Encounter_56EE3656E3B445898D64D5A15A138DB4]' role='measure' type='quantitative' />
             <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
               <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
             </column>
+            <column caption='Clinical Status Coding Code' datatype='string' name='[ClinicalStatusCodingCode]' role='dimension' type='nominal' />
+            <column caption='Code Coding Display' datatype='string' name='[CodeCodingDisplay]' role='dimension' type='nominal' />
+            <_.fcp.ObjectModelTableType.false...column caption='Encounter' datatype='integer' name='[__tableau_internal_object_id__].[Encounter_56EE3656E3B445898D64D5A15A138DB4]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
             <_.fcp.ObjectModelTableType.true...column caption='Encounter' datatype='table' name='[__tableau_internal_object_id__].[Encounter_56EE3656E3B445898D64D5A15A138DB4]' role='measure' type='quantitative' />
             <column-instance column='[__tableau_internal_object_id__].[Encounter_56EE3656E3B445898D64D5A15A138DB4]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:Encounter_56EE3656E3B445898D64D5A15A138DB4:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Calculation_6624865431849144326]' />
+              <groupfilter function='level-members' level='[Gender]' />
+            </groupfilter>
+          </filter>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[ClinicalStatusCodingCode]' />
+              <groupfilter function='level-members' level='[CodeCodingDisplay]' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]</column>
+          </slices>
           <aggregation value='true' />
         </view>
         <style />
@@ -2741,6 +2872,8 @@
             <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
               <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
             </column>
+            <column caption='Clinical Status Coding Code' datatype='string' name='[ClinicalStatusCodingCode]' role='dimension' type='nominal' />
+            <column caption='Code Coding Display' datatype='string' name='[CodeCodingDisplay]' role='dimension' type='nominal' />
             <_.fcp.ObjectModelTableType.false...column caption='Patient' datatype='integer' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
             <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
             <_.fcp.ObjectModelTableType.true...column caption='Patient' datatype='table' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
@@ -2748,6 +2881,16 @@
             <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
             <column-instance column='[Gender]' derivation='None' name='[none:Gender:nk]' pivot='key' type='nominal' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[ClinicalStatusCodingCode]' />
+              <groupfilter function='level-members' level='[CodeCodingDisplay]' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]</column>
+          </slices>
           <aggregation value='true' />
         </view>
         <style />
@@ -2774,19 +2917,45 @@
             <mapsource name='Tableau' />
           </mapsources>
           <datasource-dependencies datasource='federated.0bf3z6z0xsddlr1fndu440k38s7a'>
+            <column caption='Birth Date' datatype='string' name='[BirthDate]' role='dimension' type='nominal' />
+            <column caption='Age' datatype='integer' name='[Calculation_6624865431848120323]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='// Account for the fact that the birthday may not have come yet this year.&#10;    IF DATEADD(&apos;year&apos;, DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY()), DATE([BirthDate]))&gt; TODAY() THEN&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())-1&#10;    ELSE&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())&#10;    END' />
+            </column>
+            <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
+            </column>
+            <column caption='Clinical Status Coding Code' datatype='string' name='[ClinicalStatusCodingCode]' role='dimension' type='nominal' />
+            <column caption='Code Coding Display' datatype='string' name='[CodeCodingDisplay]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
             <column datatype='real' name='[Latitude (Location1)]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
             <_.fcp.ObjectModelTableType.false...column caption='Patient' datatype='integer' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
             <column datatype='real' name='[Longitude (Location1)]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
             <_.fcp.ObjectModelTableType.true...column caption='Patient' datatype='table' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
             <column-instance column='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:Patient_10C4452388234D0891398F0F90C87BA0:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
             <column-instance column='[Latitude (Location1)]' derivation='None' name='[none:Latitude (Location1):qk]' pivot='key' type='quantitative' />
             <column-instance column='[Longitude (Location1)]' derivation='None' name='[none:Longitude (Location1):qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Calculation_6624865431849144326]' />
+              <groupfilter function='level-members' level='[Gender]' />
+            </groupfilter>
+          </filter>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[ClinicalStatusCodingCode]' />
+              <groupfilter function='level-members' level='[CodeCodingDisplay]' />
+            </groupfilter>
+          </filter>
           <filter class='quantitative' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[__tableau_internal_object_id__].[cnt:Patient_10C4452388234D0891398F0F90C87BA0:qk]' included-values='in-range'>
             <min>1</min>
           </filter>
           <slices>
             <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[__tableau_internal_object_id__].[cnt:Patient_10C4452388234D0891398F0F90C87BA0:qk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -2822,10 +2991,38 @@
             <datasource caption='Patient+ (AA)' name='federated.0bf3z6z0xsddlr1fndu440k38s7a' />
           </datasources>
           <datasource-dependencies datasource='federated.0bf3z6z0xsddlr1fndu440k38s7a'>
+            <column caption='Birth Date' datatype='string' name='[BirthDate]' role='dimension' type='nominal' />
+            <column caption='Age' datatype='integer' name='[Calculation_6624865431848120323]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='// Account for the fact that the birthday may not have come yet this year.&#10;    IF DATEADD(&apos;year&apos;, DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY()), DATE([BirthDate]))&gt; TODAY() THEN&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())-1&#10;    ELSE&#10;        DATEDIFF(&apos;year&apos;, DATE([BirthDate]), TODAY())&#10;    END' />
+            </column>
+            <column caption='AgeGroup' datatype='string' name='[Calculation_6624865431849144326]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='IF [Calculation_6624865431848120323] &lt; 5 THEN &quot;01-04&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 10 THEN &quot;05-09&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 15 THEN &quot;10-14&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 20 THEN &quot;15-19&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 30 THEN &quot;20-29&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 40 THEN &quot;30-39&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 50 THEN &quot;40-49&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 60 THEN &quot;50-59&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 70 THEN &quot;60-69&quot;&#10;ELSEIF [Calculation_6624865431848120323] &lt; 80 THEN &quot;70-79&quot;&#10;ELSE &quot;80+&quot;&#10;END' />
+            </column>
+            <column caption='Clinical Status Coding Code' datatype='string' name='[ClinicalStatusCodingCode]' role='dimension' type='nominal' />
+            <column caption='Code Coding Display' datatype='string' name='[CodeCodingDisplay]' role='dimension' type='nominal' />
+            <_.fcp.ObjectModelTableType.false...column caption='Patient' datatype='integer' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Gender]' role='dimension' type='nominal' />
             <_.fcp.ObjectModelTableType.true...column caption='Patient' datatype='table' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
             <column-instance column='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:Patient_10C4452388234D0891398F0F90C87BA0:qk]' pivot='key' type='quantitative' />
-            <_.fcp.ObjectModelTableType.false...column caption='Patient' datatype='integer' name='[__tableau_internal_object_id__].[Patient_10C4452388234D0891398F0F90C87BA0]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_6624865431849144326]' derivation='None' name='[none:Calculation_6624865431849144326:nk]' pivot='key' type='nominal' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Calculation_6624865431849144326]' />
+              <groupfilter function='level-members' level='[Gender]' />
+            </groupfilter>
+          </filter>
+          <filter class='categorical' column='[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action1_D8AF3B7BD15E4731A5A48DE9A4530AE7]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[ClinicalStatusCodingCode]' />
+              <groupfilter function='level-members' level='[CodeCodingDisplay]' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[none:Calculation_6624865431849144326:nk]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (AgeGroup,Gender)]</column>
+            <column>[federated.0bf3z6z0xsddlr1fndu440k38s7a].[Action (Clinical Status Coding Code,Code Coding Display)]</column>
+          </slices>
           <aggregation value='true' />
         </view>
         <style />
@@ -2922,8 +3119,8 @@
         <devicelayout auto-generated='true' name='Phone'>
           <size maxheight='1900' minheight='1900' sizing-mode='vscroll' />
           <zones>
-            <zone h='100000' id='23' type-v2='layout-basic' w='100000' x='0' y='0'>
-              <zone h='97916' id='22' param='vert' type-v2='layout-flow' w='98438' x='781' y='1042'>
+            <zone h='100000' id='25' type-v2='layout-basic' w='100000' x='0' y='0'>
+              <zone h='97916' id='24' param='vert' type-v2='layout-flow' w='98438' x='781' y='1042'>
                 <zone fixed-size='280' h='39584' id='3' is-fixed='true' name='GroupGenderAge' w='24609' x='781' y='1042'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
@@ -3239,7 +3436,7 @@
         </viewpoint>
         <viewpoint name='PatientCount' />
       </viewpoints>
-      <active id='11' />
+      <active id='3' />
       <simple-id uuid='{9DCD82E9-9BAA-46AC-9B3D-6B86ECC44476}' />
     </window>
   </windows>
@@ -5899,112 +6096,79 @@
     </thumbnail>
     <thumbnail height='384' name='GroupGenderAge' width='384'>
       iVBORw0KGgoAAAANSUhEUgAAAYAAAAGACAYAAACkx7W/AAAACXBIWXMAAA7DAAAOwwHHb6hk
-      AAAdz0lEQVR4nO3deXDU9eH/8dcmm91kkw0h2RCBJIAQkEMuDYioBRXrAQ4eHBZtp6NlWqet
-      X5V2po6jbacdvpSOwlRnqlUGHRWEWg8qFCEcMmIDgQDhEhKSkJuQ+9r78/uDn/s15bZAWN/P
-      x4x/uNl8Pu9dPvk8P8fu52OzLMsSAMAoNpvNFtPTgwAA9AwCAACGIgAAYCgCAACGIgAAYCgC
-      AACGIgAAYChjAtDV1aVQKNTTwwCAq4YxASgpKVFHR0dPDwMArhrGBAAA0B0BAABDEQAAMBQB
-      AABDEQAYybIseb3ey/rJsEOHDuntt99WV1fXZZsH8N+w9/QAgK+Fw2E1NzerpKREJ0+eVJ8+
-      fTR06FAlJSXJZrNd0nk1Nzfr97//vebPn6/hw4df0ml/bc2aNWppaZHD4TjrcyzLUklJicrL
-      y9W7d2+NHTtWMTGXbrssHA6rpaVFx44d04kTJ5SWlqbhw4dflvcU0YcA4KoQCoW0cuVKvf76
-      6+ro6FBMTIzC4bD69OmjVatWKSkp6ZLOz+v1atu2bZo1a9Ylne7XOjs7tW3bNj377LOKjY09
-      6/PC4bCWLFmiHTt2KDs7W6+88oquueaaSzIGy7K0evVqvf7662ppaYm8px6PR++88448Hs8l
-      mQ+iFwFAj7MsS+vXr9fSpUs1ffp0PfbYY0pPT1dlZaU+/fTTblvEXx+6CQaDZ92KDQaD8vl8
-      crlcp/08HA6f9bCPZVlqa2uTw+GQ0+n81lvIlmVpx44dcrvd5927aGlp0e7du/XAAw8oLy9P
-      R48ePWMAgsGgbDbbGWMSCoXU0tKilJSUyHtlWZa2bNmil156SdOmTdOPfvQj9evXTzU1NVqz
-      Zs05o/TN19Hc3KzExMRz7sWc6/d9Pp9iYmK+1e/j8iMA6HFtbW1atWqVrr/+ej399NNyu92S
-      pOuuu045OTmRlVpLS4uWL1+uzZs3KxgMasKECfrZz36m9PR0rV27Vh999JFuueUWrVu3Tu3t
-      7brxxhv1zDPPyO12KxgMau3atfrwww/V1NSktLS0bmM4fvy4/vrXv2rfvn2y2+2aPn265s2b
-      p4SEBOXl5en999/XwoULtWzZMlVUVOj5559Xnz59zvqaNm/erOuvv/68W9lffvmlYmNj9cgj
-      j2jPnj364osvdOutt0Z+XlFRobfeekuFhYWKiYnRmDFj5HK59OSTTyo2NlYbN27UW2+9pdbW
-      VmVmZurJJ5/UmDFj5PV69d5772nYsGF65plnlJqaKkkaMmSIfvnLX0be0/fff1+7d+/Wr371
-      Ky1ZskShUEi/+c1vVFZWptdee02lpaWKj4/X/fffr9mzZ8vlcmn9+vX69NNPtWjRIiUkJKi2
-      tlb/+7//qzlz5mjSpEnKy8vTRx99pH79+mnnzp2SpBkzZugHP/iBnE7nRS4duJw4CYwe19nZ
-      qfLyct12221KSkpSZ2enjhw5osOHD+vo0aPy+/2yLEsrV67UunXr9Oijj+qpp57S9u3b9e67
-      7yoUCqm+vl6FhYXavn27pk6dqlGjRikvL09FRUWSpG3btmnJkiVKTk7W3Llzu22Zd3V16S9/
-      +YuKi4v17LPP6qGHHtI777yjrVu3SpIaGxtVVFSkV155RZs3b5bb7T7nFnRXV5e++OIL3X77
-      7ed8nt/v1/bt2zV69Gj17dtX48aNU2FhoVpbWyWdOky1aNEibd++XVOmTNHDDz+s/fv36+jR
-      owqFQioqKtLLL7+s8ePH64UXXlBsbKyWLl2qxsZG+f1+FRcX6+abb1bv3r3l9Xq7vader1eS
-      VFNTo8LCQi1evFiFhYVKSUlRfX29Fi9erJaWFj355JOaPHmyli9frrVr18qyLJ08eVIHDhxQ
-      OByWJPl8Ph0+fFjNzc2SpIaGBhUUFKixsVGPPPKIcnJy9Le//U3bt2//L5YSXA7sAaDHdXR0
-      qKOjQxkZGbLZbDp69Kiee+45dXZ2yufzacWKFUpNTdWmTZuUm5ur+++/X5JUWFio/Px8zZs3
-      T5KUkJCgpUuXyul06uDBgyooKFB7e7ukUydks7Oz9eKLLyo1NVU1NTVauXKlJKmsrEx79+7V
-      448/rsmTJ8uyLG3YsEEbNmzQXXfdJUkKBAI6fPiwFi5cqFGjRp11xW5ZlvLz85WcnHxBh3/2
-      7t2rhx9+WA6HQzfddJM2bNigr776Srm5uTp8+LCKioq0YMECTZ8+XeFwWEePHlVVVZUkKS8v
-      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
-      JkmK3NB86tSpstlscrvdKigokHTqXsDf//735ff7FQgE1KtXL+Xl5amhoUFpaWndxhIOh7Vz
-      507dcccdkRuz33XXXVq3bp0mTZrEzUYMFxcXp2nTpiknJ0eSNGTIEPXr108TJkyQJI0cOVLl
-      5eWyLEsJCQm66667ui13W7Zs0cmTJ5WRkdFtuo2NjaqsrNRjjz0mj8cj6dTyvXv3bg0dOvTK
-      vsjLgADgorS0tKirq0tbtmyRw+GQdOqG4Q0NDQqHw5K63z4xJiam220Hv7mL/fWdpXbu3Cmf
-      zyebzabGxsYzftS0s7NTbW1t2r17t4qLiyWd+pRQa2ururq6CADOuNx98/+/Fg6HtWvXLuXn
-      58vr9cpms6m+vv6021pKp5b3lpYWbdu2LTKN+vp6+f1+hcPhqLtS638iALgoDodDdrtdWVlZ
-      cjqdkccnTJhw0ZcALi4u1ueff665c+cqOztbkvTGG2+c8bl2u112u119+/bttndw/fXXKykp
-      6Vu8EpiqtLRUeXl5mjt3rgYOHChJWr58+Rmfa7fbFR8fr8zMzMgx/+zsbLnd7is02suLAOCi
-      JCYmyuVyKTExMXIz9kAgoLq6uoueVmNjo3r16qXMzExZlqW2trazHv93Op1KS0tTOBzWmDFj
-      FBMTo1AopLq6Om46govS1NQkt9ut7Ozs8y53qampcjgccrlcGjlypCTJ5/Pp5MmTUb/1LxEA
-      XCSbzabp06fr008/1d69e5WQkKCamhplZWWpb9++kedciP79+ysvL0/vvfee4uPjVVNTo8bG
-      xrPO94477tDf//53VVRUyOPxqLq6WsnJyZo5c2bkcBRwJt9cJvv27auWlha9++67crlcqq6u
-      7nYC+JvPdbvduvnmm/XJJ59o3759cjgcqqqq0pAhQ74T9zvmlpA4r+PHj8vj8USOs1uWpZqa
-      GlVVVSkYDMrj8Sg7O1tOp1P19fWKjY2NfGGstbVVHR0dkTgEAgFVVFRo0KBBsixLFRUVKikp
-      UVJSkgYMGKBAIKCUlBQlJSUpGAyqrKxMgwcPls1mk2VZamxs1PHjx9XR0SGPx3PadxNw4YqK
-      ijRw4MDvxOGMiooKpaWlRZbRuro6OZ1OpaSkSPq/c1cZGRmyLEuVlZUqLi5WYmKiBgwYoFAo
-      pOTkZLndbnV2dqqxsVH9+/eXzWZTOBxWdXW1qqurFQqFlJGRoczMzKjf6LDZbDYCABjquxQA
-      XDybzWaL/oNYAIBvhQAAgKEIAAAY6ryfAvr6OvDRLhwOq6uri48MAv+fZVnq6urq6WGgB503
-      AD6fT6WlpVdiLJdVXFycHA7HGb/tB5imtbVVdrtdcXFx/E0Y7LwBcLlcGj169JUYy2VVUVGh
-      3r179/QwgKtCMBiU3+/nb8JwnAMAAEMRAAAwFAEAAENF1bWAfD6fKisrVVJSoo6ODqWmpuq6
-      665Tnz59+HQPAFykqNoD2LNnj1asWKHOzk6lpKSorKxMb775pqqqqnp6aAAQdaJqD2D48OEa
-      N25c5CJM4XBYK1asUFFRkTIzM3t4dAAQXaJqDyA5ObnbFfj8fr/a2toiV/wDAFy4qNoDkKS2
-      tjbV1NSoqalJe/bskdvt1tixY3t6WAAQdaIuABUVFVq/fr1aWlrkcDiUm5sb9dflBoCeEHUB
-      uO666zR48GB1dHSorKxMGzduVDgc1o033tjTQwOAqBJ1AYiJiZHT6ZTT6VRqaqoCgYB27txJ
-      AADgIkXNSeBgMKiDBw+qra0t8lgoFFJtbS23BASAbyFq9gAsy1JxcbFWrVolj8ejpKQk1dfX
-      Ky4uTnPnzu3p4QFA1ImaAMTFxemee+7RpEmTdPLkSXm9XqWkpCg9PZ09AAD4FqImANKpCKSn
-      pys9Pb2nhwIAUS9qzgEAAC4tAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
+      AAAdo0lEQVR4nO3deXDU9eH/8ddnN9lNQi4Sk2C4AggEheGwULAwosJYtdjptOJdxHO0tVqp
+      VBmxHY9R2uI12KlYRFtpdcZRax1AmgDBAFZFA1bCISQcCbnDJrvZTTa7n98fDPtrvkBt3U/Y
+      wPv5mGFGdjfvvBeTz3M/t2Xbti0AgFEsy7JciZ4EACAxCAAAGIoAAIChCAAAGIoAAIChzqgA
+      tLa2KhKJJHoaAHBWOKMC0NjYSAAAwCFnVAAAAM4hAABgKAIAxKmmpkZ1dXWJngbwPyMAOCNE
+      IhFVV1ertLRU5eXlamlpUTxXMenq6tKzzz6rlpaWuOe2bNky1dTUnPS51tZWlZSUaN++fd94
+      fNu21djYqM2bN6u0tFQHDhxQNBr9xuMBxyUlegLA1+nu7taKFSv07rvvavTo0ero6FBKSoqe
+      eeYZJSV9sx/hSCSijRs36pprrlFOTs43nltzc7Nqamp0wQUXnPCcbdtas2aNVq5cqXHjxmnp
+      0qWyLOt//h7l5eVasmSJCgsLlZKSoqqqKr366qvKzc39xvMGJAKAM8COHTv0zjvv6Pnnn9fI
+      kSMViUTk8/nkdrvV3d2tsrIyVVRU6Pzzz9fs2bPV3t6uTZs2qaCgQB9//LGKi4t12WWXyeVy
+      6cCBA1q/fr1cLpe6urokSeFwWKWlpfrXv/6liRMnaubMmerq6tK6det08cUXa8OGDZo8ebIG
+      DRp0wtzKy8s1efJkpaSknHTuZWVluuOOO/TnP/9ZTU1NysvLk23b2rVrlzZv3qyMjAwNGDBA
+      U6dOlW3bWrt2rfbt26dp06Zp6tSpam9v13PPPadbb71Vc+bMkdvtVktLi7KystTS0qKtW7dq
+      2rRpKikp0eWXXy6fz6e///3vkqQ5c+ZoyJAh2rt3r5qamjRt2jS1tLRoy5Yt+t73vqddu3bp
+      8OHDqq+vVygU0pVXXqkBAwZ8o0jhzMQmIPR527Zt05QpUzRq1CgdPHhQX3zxhRobGxWNRrV6
+      9Wq98sorGjVqlP7yl79ozZo1amho0LPPPqv33ntPkvT000+rpqZGNTU1+tnPfqb6+noFg0F1
+      d3dLkt555x298cYbKi4u1vLly7VhwwYFAgEtX75cTz75pN5++235/f4T5tXd3a3169dr9uzZ
+      J513a2urampqdMkllygvL087duyQJH3xxRd64IEH5Pf7VVdXp6VLlyoUCunll19WaWmpRowY
+      od/+9rfasWOHDhw4oGAwqKuvvlp+v18VFRU6ePCguru7VV9frxdffFGPPvqoNm7cqNraWt1/
+      //2KRCIKh8P6+c9/rqamJlVUVGj16tWSpIaGBr3yyiuxf9fnnntOHR0d2rlzpxYvXhyLIszA
+      GgD6vLa2NmVnZ8uyLK1fv17r169XJBLRH//4R61fv14zZ87UxIkTVV9fr7KyMo0aNUrZ2dl6
+      4oknFIlEVFpaqs7OTm3fvl3nnXeeFi5cqK6uLq1du1aStG7dOl122WWaMGGC9u/frw8//FAT
+      JkxQJBLRgAED9Nhjjyk1NfWEedXV1SkYDGr48OEnnffmzZs1bNgwZWRkaMqUKSovL9ell16q
+      DRs26NJLL9V9992npqYmlZaWSpJKSkp05513avz48fr888+1efNmTZo0SampqUpKStLevXv1
+      0ksvac+ePfrTn/4kSQoEApo+fbp++MMfqqysTHl5ebr33ntl27a+/PLLWHROZerUqbrjjjvU
+      0NCgH//4x/L5fMrPz4/nfxfOIAQAfd6QIUNUUlKicDisW2+9VdOmTdOvf/1rSccWgJs2bYrt
+      ZB0xYkTs61wulyKRiFyuYyu6ra2tGjBgQOzvxwUCAZWWlurLL7+UJI0ePVq2bcvtduv2228/
+      6cJfOrb5Z8qUKUpOTj7hOdu2tWHDBu3evVs33HBD7JN1IBBQMBiMBe3f+f1+vffee/rwww8l
+      SQMGDFBeXp7a29vV2NioKVOmaMyYMZo3b15sB3hubq6uvfZaWZalQCAQG9eyLGVlZamjo+M/
+      /tsen0NycrKSkpLi2rGOMw8BQJ83ffp0rVy5Ui+//LLmzJmjw4cPSzq28CouLtaRI0e0aNEi
+      BYNBffXVV6ccZ+jQoVq7dq1qamrU0tISWygXFxcrEonowQcfVFtbmw4fPhxbiP4n5eXl+ulP
+      f3rS1zU1NamyslLLli1Tdna2gsGgFixYoD179mj8+PFatmyZ+vfvr4MHD0o6Fozi4mKNHDlS
+      d955p+rr63X06FENHTpUxcXFevLJJ3XXXXfJsqwem2n+fZ7nnXeeli9fHjtKqLKyUrfddpsq
+      KytVV1enmpoabdu2rcfZ9H6/X21tbXr//feVkZGhjIyM//L/Cs4GBAB93oABA7R06VK9+OKL
+      Kikpkcfj0ezZs5WcnKz58+dr6dKluuWWW+T1evWjH/1IgwYNUlFRkaRjC8ihQ4fK6/Vq+vTp
+      +uijj/STn/xEw4YN06BBg5ScnKx77rlHS5Ys0bx585SWlqbrrrtOo0ePVlFRkdxu90nndOjQ
+      IYVCIZ133nknff7w4cO64IILNHLkSFmWJdu2NWvWLO3evVtz585VJBLRjh07NGjQIFmWJZfL
+      pV/84hd65plndNNNNykzM1O33XabkpOT9fjjj+v555/Xo48+Ktu2NW7cOOXk5Ki1tVVDhw6N
+      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
@@ -6018,29 +6182,61 @@
       AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
       AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
       AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
-      AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
-      AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
-      AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
-      AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
-      AgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAoAgAAhiIAAGAo
-      AgAAhiIAAGAoAgAAhiIAAGAoAgAAhrL39AAulmVZam9vV3Nzs+x2uzwej+Li4np6WAAQdaIq
-      AG1tbdq8ebOKi4sVGxsrn88nj8ejhx56SL169erp4QFAVImqABw4cEAnTpzQrFmzlJqaqtbW
-      Vq1Zs0Y7duzQtGnTenp4ABBVoioAI0eO1I033ii7/dSwXS6XcnJyVFtb28MjA4DoE1UBcLvd
-      3f6/trZW+fn5F7T1Hw6H5fP5LtfQgKgSDAb5m0B0BeBr4XBYBQUFWr9+vW666SaNHTs28rNg
-      MCi/33/G3wmHw1dymIhi//PqRrV2RvfK8eHbrtO9Ewef8WeWZUkSfxOGi7oAeL1effzxxzp+
-      /Lhmzpyp4cOHKzY2NvLz2NhYxcfHn/Z7drtdCQkJV3KoiGJdvqA6vcGeHsZ/xbLFnHWZb29v
-      V0zM2X8OM0RVAAKBgD7++GNVVlbqhz/8ofr06SObzdbtOTab7bTHAACni6ovgpWWlmrfvn16
-      /PHHlZGRwYoeAP4LUbUHsH//fqWmpurQoUPdHvd4PMrJyemhUQFAdIqqAGRlZSkYDKqioqLb
-      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
+      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
     </thumbnail>
     <thumbnail height='384' name='MapCityPatient' width='384'>
       iVBORw0KGgoAAAANSUhEUgAAAYAAAAGACAYAAACkx7W/AAAACXBIWXMAAA7DAAAOwwHHb6hk
