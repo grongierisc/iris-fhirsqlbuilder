@@ -158,6 +158,29 @@
           "index": false
         }
       ]
+    },
+    {
+      "resourceType": "Goal",
+      "columns": [
+        {
+          "name": "SubjectReference",
+          "type": "String",
+          "path": "Goal.subject.reference",
+          "index": false
+        },
+        {
+          "name": "DescriptionText",
+          "type": "String",
+          "path": "Goal.description.text",
+          "index": true
+        },
+        {
+          "name": "LifecycleStatus",
+          "type": "String",
+          "path": "Goal.lifecycleStatus",
+          "index": false
+        }
+      ]
     }
   ]
 }
