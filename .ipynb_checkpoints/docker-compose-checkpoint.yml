@@ -1,0 +1,18 @@
+version: '3.6'
+services:
+  iris:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    # command: 
+    #   - -a
+    #   - iris session iris -U HSSYS '##class(HS.HC.FHIRSQL.Utils.Setup).Install()'
+    environment:
+      - ISC_CPF_MERGE_FILE=/irisdev/app/merge.cpf
+    ports: 
+      - 33782:1972
+      - 33783:52773
+      - 33784:53773
+    volumes:
+      - ./:/irisdev/app

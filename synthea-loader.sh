@@ -12,3 +12,6 @@ fi
 
 docker run --rm -v $PWD/output:/output --name synthea-docker intersystemsdc/irisdemo-base-synthea:version-1.3.4 -p $numberOfPatients
 
+docker exec iris-fhirsqlbuilder_iris_1 iris session iris -U"fhirserver" "^synthea"
+
+
