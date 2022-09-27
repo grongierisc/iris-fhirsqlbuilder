@@ -17,6 +17,8 @@ WORKDIR /irisdev/app
 RUN chown ${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} /irisdev/app
 USER ${ISC_PACKAGE_MGRUSER}
 
+RUN pip3 install iknowpy
+
 COPY  src src
 COPY data/fhir fhirdata
 COPY iris.script /tmp/iris.script
