@@ -1,3 +1,0 @@
-zn "fhirserver"
-zw ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles("/irisdev/app/output/fhir", "FHIRSERVER", "/fhir/r4")
-halt
