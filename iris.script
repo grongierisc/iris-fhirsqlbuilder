@@ -43,7 +43,6 @@
 
     zw ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles("/irisdev/app/fhirdata/", namespace, appKey)
 
-
     do $System.OBJ.LoadDir("/irisdev/app/src","ck",,1)
 
     do $SYSTEM.SQL.Execute("LOAD DATA FROM FILE '/irisdev/app/misc/Location.csv' INTO Demo_External.Location")
