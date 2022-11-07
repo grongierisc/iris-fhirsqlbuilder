@@ -1,6 +1,8 @@
     zn "%SYS"
     Do ##class(Security.Users).UnExpireUserPasswords("*")
 
+    // For front end api disable license 
+    // HS.HC.FHIRSQL.REST.FrontEndAPI.Map
     set db="/usr/irissys/mgr/irislib"
     set tDB = ##class(SYS.Database).%OpenId(db)
     set tDB.ReadOnly = 0
