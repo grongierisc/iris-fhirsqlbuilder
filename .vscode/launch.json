@@ -5,7 +5,7 @@
         "type": "objectscript",
         "request": "launch",
         "name": "ObjectScript Debug Class", 
-        "program": "##class(PackageSample.ObjectScript).Test()",
+        "program": "##class(User.SQLvar).AllEntityExecute()",
       },
       {
         "type": "objectscript",
@@ -14,5 +14,6 @@
         "processId": "${command:PickProcess}",
         "system": true
       }
+      
     ]
   }

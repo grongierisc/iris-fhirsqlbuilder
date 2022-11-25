@@ -1,9 +1,9 @@
-ARG IMAGE=arti.iscinternal.com/intersystems/irishealth:2022.3.0FHIRSQL.30.0
+ARG IMAGE=intersystemsdc/irishealth-community:preview
 FROM $IMAGE
 
 USER root
 
-COPY key/iris.key /usr/irissys/mgr/iris.key
+#COPY key/iris.key /usr/irissys/mgr/iris.key
 
 # Update package and install sudo
 RUN apt-get update && apt-get install -y \
