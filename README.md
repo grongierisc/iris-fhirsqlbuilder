@@ -4,7 +4,7 @@ This project shows how to use the FHIR SQL Builder to generate SQL statements fo
 
 The end result will be available on Tableau.
 
-[Tableau](misc/img/Tableau.png)
+![Tableau](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/TableauResult.png)
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ The end result will be available on Tableau.
 Git clone this repository.
 
 ```bash
-git clone
+git clone https://github.com/grongierisc/iris-fhirsqlbuilder.git
 ```
 
 Run the following command to start IRIS.
@@ -41,17 +41,17 @@ Once IRIS is up and running, go to the FHIR SQL Builder and generate the SQL sta
 
 http://localhost:33783/csp/fhirsql/index.csp
 
-[FHIRSQLIntro](misc/img/FHIRSQLIntro.png)
+![FHIRSQLIntro](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/FHIRSQLIntro.png)
 
 Then register the current FHIR Server with the FHIR SQL Builder.
 
 To do so, click on `New Analysis`.
 
-[FHIRSQLNewAnalysis](misc/img/FHIRSQLNewAnalysis.png)
+![FHIRSQLNewAnalysis](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/NewAnalysis.png)
 
 Then click on `Register FHIR Server`.
 
-[FHIRSQLRegisterFHIRServer](misc/img/FHIRSQLRegisterFHIRServer.png)
+![FHIRSQLRegisterFHIRServer](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/NewFhirRepo.png)
 
 Fully the form with the following values:
 
@@ -68,7 +68,7 @@ Now we can generate an analysis.
 
 - Selectivity : 100
 
-[FHIRSQLAnalysis](misc/img/FHIRSQLAnalysis.png)
+![FHIRSQLAnalysis](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/AnalysisSelectivity.png)
 
 Then click on `Lunch Analysis`.
 
@@ -76,7 +76,7 @@ Then click on `Lunch Analysis`.
 
 Once the analysis is done, we can create projections.
 
-[FHIRSQLProjections](misc/img/FHIRSQLProjections.png)
+![FHIRSQLProjections](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/CreateProjection.png)
 
 To help you in this task, you can import the following projections.
 
@@ -86,19 +86,19 @@ Click on `Import Projections`.
 
 Then click on `Import`.
 
-[ImportProjections](misc/img/ImportProjections.png)
+![ImportProjections](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/ImportProjections.png)
 
 Select your analysis and click on `Import`.
 
 If you want to see the projections, click on `Edit Projections`.
 
-[EditProjections](misc/img/EditProjections.png)
+![EditProjections](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/EditProjection.png)
 
 #### Generate SQL statements
 
 Once the projections are created, we can generate the SQL statements.
 
-[FHIRSQLGenerateSQL](misc/img/FHIRSQLGenerateSQL.png)
+![FHIRSQLGenerateSQL](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/NewStatements.png)
 
 Select your analysis, the projections and the schema.
 
@@ -112,7 +112,154 @@ Go to the SQL UI :
 
 http://localhost:33783/csp/sys/exp/%25CSP.UI.Portal.SQL.Home.zen?$NAMESPACE=FHIRSERVER
 
-[SQLUI](misc/img/SQLUI.png)
+![SQLUI]([misc/img/SQLUI.png](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/SQLUI.png))
 
 Let's play with few SQL statements.
 
+### Patient
+
+Display the patient as a table :
+
+```sql
+SELECT 
+ID, AddressCity, BirthDate, Gender, Key, NameFamily, NameGiven, NamePrefix, NameUse
+FROM AA.Patient
+```
+
+Result :
+
+| ID |AddressCity |BirthDate |Gender |Key |NameFamily |NameGiven |NamePrefix |NameUse|
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 |Shirley |1954-06-13 |male |Patient/1 |O'Hara248 |Carroll471 |Mr. |official|
+| 172 |Somerset |1975-08-12 |male |Patient/172 |Jast432 |Frankie174 |Mr. |official|
+| 459 |Swansea |2009-05-04 |female |Patient/459 |Rohan584 |Gabriele201 |  |official|
+| 705 |Weston |1945-12-19 |female |Patient/705 |Frami345 |Kallie862 |Mrs. |official|
+| 1002 |Weston |1945-12-19 |female |Patient/1002 |Davis923 |Lean294 |Mrs. |official|
+| 1510 |Boston |1995-03-26 |female |Patient/1510 |Hettinger594 |Margie619 |Ms. |official|
+
+### Join patient with an external table
+
+Create an external table :
+
+```sql
+create TABLE AB.DriverLicense (
+
+    Code varchar(255) not null,
+    Valide TINYINT not null
+
+)
+```
+
+Insert data into the external table :
+
+```sql
+INSERT INTO AB.DriverLicense (Code, Valide) VALUES ('S99916528', 1);
+
+INSERT into AB.DriverLicense (Code, Valide) VALUES ('S99950276', 0);
+```
+
+Join the external table with the patient table :
+
+```sql
+SELECT 
+*
+FROM AA.Patient P
+Left join AB.DriverLicense DL on P.IdentifierValue = DL.Code
+```
+
+Result :
+
+|ID |AddressCity |BirthDate |Gender |IdentifierTypeCodingCode |IdentifierValue |Key |NameFamily |NameGiven |NamePrefix |NameUse |Code |Valide|
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|1 |Shirley |1954-06-13 |male |DL |S99916528 |Patient/1 |O'Hara248 |Carroll471 |Mr. |official |S99916528 |1|
+|172 |Somerset |1975-08-12 |male |DL |S99950276 |Patient/172 |Jast432 |Frankie174 |Mr. |official |S99950276 |0|
+|459 |Swansea |2009-05-04 |female |  |  |Patient/459 |Rohan584 |Gabriele201 |  |official |  | |
+|705 |Weston |1945-12-19 |female |DL |S99938125 |Patient/705 |Frami345 |Kallie862 |Mrs. |official |  | |
+|1002 |Weston |1945-12-19 |female |DL |S99975762 |Patient/1002 |Davis923 |Lean294 |Mrs. |official |  | |
+|1510 |Boston |1995-03-26 |female |DL |S99981337 |Patient/1510 |Hettinger594 |Margie619 |Ms. |official |  | |
+
+What is neat to note here is that we can join the FHIR Server with an external table.
+
+Then it's in the imported projections we ask to project not all the identifiers but only the driver license.
+
+From `ExportFHIRtoSQL.json` :
+```json
+        {
+          "name": "IdentifierTypeCodingCode",
+          "type": "String",
+          "path": "Patient.identifier.type.coding.where(code = 'DL').code",
+          "index": false
+        },
+        {
+          "name": "IdentifierValue",
+          "type": "String",
+          "path": "Patient.identifier.where(type.coding.code = 'DL').value",
+          "index": false
+        }
+```
+
+### Play with iknowpy
+
+We can also play with iknowpy.
+
+iknowpy is a natural language processing library available on python.
+
+We can use it to extract information from a text.
+
+Let's create an SQL function in python :
+
+```sql
+CREATE FUNCTION sqliknowparser(tText VARCHAR(50000))
+    RETURNS VARCHAR(50000)
+    LANGUAGE PYTHON
+{
+    import iknowpy
+
+    engine = iknowpy.iKnowEngine()
+
+    # index some text
+    text = tText
+    engine.index(text, 'en')
+
+    t_output = ""
+
+    # or make it a little nicer
+    for s in engine.m_index['sentences']:
+        for e in s['entities']:
+            if e['type'] == 'Concept':
+                t_output = t_output  + e['index']+ "|"
+
+    return t_output[:-1]
+}
+```
+
+Then we can use it in a SQL statement :
+
+```sql
+SELECT
+ID, DescriptionText, Key, LifecycleStatus, SubjectReference, $piece(sqliknowparser(DescriptionText),'|',1) as entities
+FROM AA.Goal 
+union
+SELECT 
+ID, DescriptionText, Key, LifecycleStatus, SubjectReference, $piece(sqliknowparser(DescriptionText),'|',2) as entities
+FROM AA.Goal
+```
+
+Result :
+
+|ID |DescriptionText |Key |LifecycleStatus |SubjectReference |entities|
+| --- | --- | --- | --- | --- | --- |
+|178 |Maintain blood pressure below 140/90 mm[Hg] |Goal/178 |accepted |Patient/172 |blood pressure|
+|179 |Reduce sodium intake to no more than 2,400 mg/day |Goal/179 |accepted |Patient/172 |sodium intake|
+|178 |Maintain blood pressure below 140/90 mm[Hg] |Goal/178 |accepted |Patient/172 |140/90 mm[hg]|
+|179 |Reduce sodium intake to no more than 2,400 mg/day |Goal/179 |accepted |Patient/172 |no more than 2,400 mg/day|
+
+## Tableau
+
+Just open Tableau and connect to IRIS with the JDBC driver.
+
+Tableau file : `TableauDemo.twb` in `misc` folder.
+
+### Conclusion
+
+We have seen how to use the FHIR SQL Build to create a SQL database.
