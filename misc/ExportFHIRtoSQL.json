@@ -46,6 +46,18 @@
           "type": "String",
           "path": "Patient.address.city",
           "index": false
+        },
+        {
+          "name": "IdentifierTypeCodingCode",
+          "type": "String",
+          "path": "Patient.identifier.type.coding.where(code = 'DL').code",
+          "index": false
+        },
+        {
+          "name": "IdentifierValue",
+          "type": "String",
+          "path": "Patient.identifier.where(type.coding.code = 'DL').value",
+          "index": false
         }
       ]
     },
