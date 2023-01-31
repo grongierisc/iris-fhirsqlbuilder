@@ -4,6 +4,8 @@ This project shows how to use the FHIR SQL Builder to generate SQL statements fo
 
 The end result will be available on Tableau.
 
+[Tableau](misc/img/Tableau.png)
+
 ## Prerequisites
 
 - IRIS Community Edition
@@ -27,6 +29,12 @@ docker-compose up -d
 
 ### FHIR SQL Builder
 
+For your convenience, this project contains preloaded data in the FHIR Server.
+
+Preloaded data is available in the following folder.
+
+`data/fhir`
+
 #### Configure an FHIR Repository to analyze
 
 Once IRIS is up and running, go to the FHIR SQL Builder and generate the SQL statements for the FHIR Server.
@@ -37,11 +45,11 @@ http://localhost:33783/csp/fhirsql/index.csp
 
 Then register the current FHIR Server with the FHIR SQL Builder.
 
-To do so, click on New Analysis.
+To do so, click on `New Analysis`.
 
 [FHIRSQLNewAnalysis](misc/img/FHIRSQLNewAnalysis.png)
 
-Then click on Register FHIR Server.
+Then click on `Register FHIR Server`.
 
 [FHIRSQLRegisterFHIRServer](misc/img/FHIRSQLRegisterFHIRServer.png)
 
@@ -54,7 +62,7 @@ Fully the form with the following values:
   - Click on New Credentials to create a new user with the right credentials.
 - FHIR repository url : /fhir/r4
 
-Then click on Save.
+Then click on `Save`.
 
 Now we can generate an analysis.
 
@@ -62,7 +70,7 @@ Now we can generate an analysis.
 
 [FHIRSQLAnalysis](misc/img/FHIRSQLAnalysis.png)
 
-Then click on Lunch Analysis.
+Then click on `Lunch Analysis`.
 
 #### Create projections
 
@@ -74,15 +82,15 @@ To help you in this task, you can import the following projections.
 
 misc/ExportFHIRtoSQL.json
 
-Click on Import Projections.
+Click on `Import Projections`.
 
-Then click on Import.
+Then click on `Import`.
 
 [ImportProjections](misc/img/ImportProjections.png)
 
-Select your analysis and click on Import.
+Select your analysis and click on `Import`.
 
-If you want to see the projections, click on Edit Projections.
+If you want to see the projections, click on `Edit Projections`.
 
 [EditProjections](misc/img/EditProjections.png)
 
@@ -94,7 +102,7 @@ Once the projections are created, we can generate the SQL statements.
 
 Select your analysis, the projections and the schema.
 
-Then click on Generate SQL.
+Then click on `Projection`.
 
 ## Usage
 
