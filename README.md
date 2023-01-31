@@ -112,7 +112,7 @@ Go to the SQL UI :
 
 http://localhost:33783/csp/sys/exp/%25CSP.UI.Portal.SQL.Home.zen?$NAMESPACE=FHIRSERVER
 
-![SQLUI]([misc/img/SQLUI.png](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/SQLUI.png))
+![SQLUI](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/SQLUI.png)
 
 Let's play with few SQL statements.
 
