@@ -256,6 +256,18 @@ Result :
 
 ## Tableau
 
+To make a connection with Tableau, you need to install the JDBC driver.
+
+Copy the JDBC driver in the `drivers` folder of Tableau.
+
+JDBC driver : https://github.com/intersystems-community/iris-driver-distribution/blob/main/JDBC/JDK18/intersystems-jdbc-3.6.1.jar
+
+`drivers` folder :
+
+  * Windows : C:\Program Files\Tableau\Drivers
+  * Mac : ~/Library/Tableau/Drivers
+  * Linux : /opt/tableau/tableau_driver/jdbc
+
 Just open Tableau and connect to IRIS with the JDBC driver.
 
 Tableau file : `TableauDemo.twb` in `misc` folder.
