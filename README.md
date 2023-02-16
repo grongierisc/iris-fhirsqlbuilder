@@ -162,9 +162,9 @@ Join the external table with the patient table :
 
 ```sql
 SELECT 
-*
+P.NameFamily, P.NameGiven,DL.*
 FROM AA.Patient P
-Left join AB.DriverLicense DL on P.IdentifierValue = DL.Code
+inner join AB.DriverLicense DL on P.IdentifierValue = DL.Code
 ```
 
 Result :

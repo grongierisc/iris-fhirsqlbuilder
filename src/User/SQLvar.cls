@@ -1,0 +1,4 @@
+Class User.SQLvar
+{
+
+}
