@@ -41,6 +41,8 @@ Once IRIS is up and running, go to the FHIR SQL Builder and generate the SQL sta
 
 http://localhost:33783/csp/fhirsql/index.csp
 
+Login / password : SuperUser / SYS
+
 ![FHIRSQLIntro](https://raw.githubusercontent.com/grongierisc/iris-fhirsqlbuilder/master/misc/img/FHIRSQLIntro.png)
 
 Then register the current FHIR Server with the FHIR SQL Builder.
