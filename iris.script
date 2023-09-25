@@ -22,7 +22,7 @@
 
     set namespace="FHIRSERVER"
     Set appKey = "/fhir/r4"
-    Set strategyClass = "FHIRSQL.InteractionsStrategy"
+    Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
     Set metadataConfigKey = "HL7v40"
     set importdir="/irisdev/app/src"
 
