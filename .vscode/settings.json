@@ -14,7 +14,7 @@
         "internalPort": 52773
       },
       "links": {
-        "FHIR SQL Demo": "http://localhost:${port}/csp/fhirsql/index.csp",
+        "FHIR SQL Demo": "http://localhost:${port}/csp/fhirsql/index.html",
         "SQL Query": "http://localhost:33783/csp/sys/exp/%25CSP.UI.Portal.SQL.Home.zen?$NAMESPACE=FHIRSERVER",
         "FHIR server test": "http://localhost:${port}/fhir/r4/metadata"
       }

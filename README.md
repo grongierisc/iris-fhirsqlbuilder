@@ -39,7 +39,7 @@ Preloaded data is available in the following folder.
 
 Once IRIS is up and running, go to the FHIR SQL Builder and generate the SQL statements for the FHIR Server.
 
-http://localhost:33783/csp/fhirsql/index.csp
+http://localhost:33783/csp/fhirsql/index.html
 
 Login / password : SuperUser / SYS
 
