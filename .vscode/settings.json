@@ -33,6 +33,14 @@
         "showSystem": false,
         "username": "_SYSTEM"
       }
-    ]
+    ],
+    "java.autobuild.enabled": true,
+    "java.import.maven.enabled": true,
+    // set java src root path
+    "java.project.sourcePaths": [
+        "src/java"
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive",
+
 
 }
