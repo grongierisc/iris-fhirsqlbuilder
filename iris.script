@@ -1,18 +1,6 @@
     zn "%SYS"
     Do ##class(Security.Users).UnExpireUserPasswords("*")
 
-    // For front end api disable license 
-    // HS.HC.FHIRSQL.REST.FrontEndAPI.Map
-    set db="/usr/irissys/mgr/irislib"
-    set tDB = ##class(SYS.Database).%OpenId(db)
-    set tDB.ReadOnly = 0
-    zw tDB.%Save()
-
-    set db="/usr/irissys/mgr/hslib"
-    set tDB = ##class(SYS.Database).%OpenId(db)
-    set tDB.ReadOnly = 0
-    zw tDB.%Save()
-
     zn "HSLIB"
 
     // Enable FHIR SQL Builder
@@ -21,9 +9,9 @@
     
 
     set namespace="FHIRSERVER"
-    Set appKey = "/fhir/r4"
+    Set appKey = "/fhir/r5"
     Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
-    Set metadataConfigKey = "HL7v40"
+    Set metadataConfigKey = "HL7v50"
     set importdir="/irisdev/app/src"
 
     //Install a Foundation namespace and change to it
@@ -44,7 +32,7 @@
     set config.DebugMode = 4
     do strategy.SaveServiceConfigData(config)
 
-    zw ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles("/irisdev/app/fhirdata/", namespace, appKey)
+    //zw ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles("/irisdev/app/fhirdata/", namespace, appKey)
 
     do $System.OBJ.LoadDir("/irisdev/app/src","ck",,1)
 
