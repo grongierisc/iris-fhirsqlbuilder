@@ -1,4 +1,4 @@
-ARG IMAGE=intersystemsdc/irishealth-community:latest
+ARG IMAGE=intersystemsdc/irishealth-community:preview
 FROM $IMAGE as builder
 
 USER root
@@ -8,7 +8,7 @@ USER root
 # Update package and install sudo
 RUN apt-get update && apt-get install -y \
 	git \
-	nano \
+	vim \
 	sudo && \
 	/bin/echo -e ${ISC_PACKAGE_MGRUSER}\\tALL=\(ALL\)\\tNOPASSWD: ALL >> /etc/sudoers && \
 	sudo -u ${ISC_PACKAGE_MGRUSER} sudo echo enabled passwordless sudo-ing for ${ISC_PACKAGE_MGRUSER}
@@ -35,5 +35,3 @@ ADD --chown=${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} https://github.com/g
 RUN --mount=type=bind,source=/,target=/builder/root,from=builder \
 	cp -f /builder/root/usr/irissys/iris.cpf /usr/irissys/iris.cpf && \
 	python3 /irisdev/app/copy-data.py -c /usr/irissys/iris.cpf -d /builder/root/ 
-
-RUN pip3 install iknowpy
